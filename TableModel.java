@@ -71,7 +71,6 @@ public class TableModel extends AbstractTableModel {
             case 2:
                 return students.get(r).getFaculty();
             case 3:
-                //return students.get(r).getDepartment();
                 return students.get(r).getDepartment();
             case 4:
                 return students.get(r).getAge();
@@ -230,20 +229,4 @@ public class TableModel extends AbstractTableModel {
         else return num;
     };
 
-    public JComboBox getComboBox( String checked )
-    {
-        JComboBox comboFI = new JComboBox();
-        comboFI.addItem("Програмна інженерія");
-        comboFI.addItem("Інформатика");
-        comboFI.addItem("Прикладна матем.");
-
-        JComboBox comboFEN = new JComboBox();
-        comboFEN.addItem("Фінанси");
-        comboFEN.addItem("Економ. теорія");
-        comboFEN.addItem("Маркетинг");
-
-
-
-        return comboFEN;
-    };
 }

@@ -49,6 +49,9 @@ public class API extends JFrame {
 
         init( panel );
 
+        setBackground(Color.GRAY);
+
+
 
         table.setPreferredScrollableViewportSize(new Dimension(1100, 200) );
         JScrollPane scrollPane = new JScrollPane(table);
@@ -74,7 +77,6 @@ public class API extends JFrame {
                 return true;
             }
         }
-
         return false;
     };
 
@@ -220,45 +222,37 @@ public class API extends JFrame {
         error.setFont(new Font("Serif", Font.BOLD, 17));
         panel.add( error );
 
-        btnSort1.addActionListener( new ActionListener(){
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                Student[] stds = new Student[ students.size() ];
+        btnSort1.addActionListener( event ->
+        {
+            Student[] stds = new Student[ students.size() ];
 
-                for(int i=0;i<stds.length;i++){
-                    stds[i] = students.get(i);
-                }
-                Arrays.sort( stds );
-
-                for(int i=0;i<stds.length;i++){
-                    students.set( i , stds[i] );
-                }
-                model.fireTableDataChanged();
+            for(int i=0;i<stds.length;i++){
+                stds[i] = students.get(i);
             }
-        } );
+            Arrays.sort( stds );
 
-        btnSort2.addActionListener( new ActionListener(){
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                sortByCource();
-                model.fireTableDataChanged();
+            for(int i=0;i<stds.length;i++){
+                students.set( i , stds[i] );
             }
-        } );
-
-        btnRemove.addActionListener(new ActionListener(){
-            @Override
-            public void actionPerformed(ActionEvent ae) {
-                if( table.getSelectedRows().length > 0 ) students.remove( table.getSelectedRows()[0] );
-                model.fireTableDataChanged();
-            }
+            model.fireTableDataChanged();
         });
 
-        btnAdd.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent ae) {
-                students.add( new Student("Ім'я","По-батькові", "Прізвище",new GregorianCalendar(0000,00,00),"КВ №00000000","I" , 100 ,university , "ФІ" , "Програмна інженерія" ) );
-                model.fireTableDataChanged();
-            }
+        btnSort2.addActionListener(event ->
+        {
+            sortByCource();
+            model.fireTableDataChanged();
+        });
+
+        btnRemove.addActionListener(event ->
+        {
+            if( table.getSelectedRows().length > 0 ) students.remove( table.getSelectedRows()[0] );
+            model.fireTableDataChanged();
+        });
+
+        btnAdd.addActionListener(event ->
+        {
+            students.add( new Student("Ім'я","По-батькові", "Прізвище",new GregorianCalendar(0000,00,00),"КВ №00000000","I" , 100 ,university , "ФІ" , "Програмна інженерія" ) );
+            model.fireTableDataChanged();
         });
     };
 
@@ -273,20 +267,11 @@ public class API extends JFrame {
         JButton add_btn = new JButton("Выбрать");
         add_btn.setBounds(250,10,200,40);
         panel.add(add_btn);
-        add_btn.addActionListener( new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                addNewItem();
-            }
-        });
+        add_btn.addActionListener( event -> addNewItem());
 
         JButton remove_btn = new JButton("Remove");
-        remove_btn.addActionListener( new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                removeItem();
-            }
-        });
-        // getContentPane().add("South", remove_btn);
-        // Создадим один узел ROOT
+        remove_btn.addActionListener( event -> removeItem());
+
         DefaultMutableTreeNode top = new DefaultMutableTreeNode("Університет");
         top.add(new DefaultMutableTreeNode("Студенти"));
         top.add(new DefaultMutableTreeNode("Викладачі"));
@@ -315,7 +300,7 @@ public class API extends JFrame {
         jTree = new JTree(top);
         jTree.setBounds(10,70,300,300);
         panel.add(jTree);
-        // getContentPane().add("Center", new JScrollPane(jTree));
+
         setBounds(100, 100, 900, 700);
 
 
