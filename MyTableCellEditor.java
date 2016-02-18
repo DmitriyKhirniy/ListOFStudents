@@ -1,24 +1,50 @@
 import javax.swing.*;
 import javax.swing.table.TableCellEditor;
 import java.awt.*;
+import java.util.*;
+import java.util.List;
 
 public class MyTableCellEditor extends AbstractCellEditor implements TableCellEditor {
 
-    JComponent component = new JTextField();
+    JComponent component = new JComboBox<String>();
 
     public Component getTableCellEditorComponent(JTable table, Object value, boolean isSelected,
                                                  int rowIndex, int vColIndex) {
-
-        ((JTextField) component).setText((String) value);
-
-        return getComboBox( API.students.get(rowIndex).getFaculty() ,rowIndex);
+        component = getComboBox( API.students.get(rowIndex).getFaculty(), rowIndex);
+        return component;
     }
 
     public Object getCellEditorValue() {
-        return ((JTextField) component).getText();
+        return ((JComboBox) component).getSelectedItem();
     }
-    private JComboBox getComboBox( String str ,int row)
+
+    private JComboBox getComboBox( String str, int rowIndex)
     {
+
+        List<JComboBox<String>> list = new ArrayList<JComboBox<String>>();
+
+
+        for(int i=0;i<API.university.faculties.size();i++)
+        {
+            JComboBox current = new JComboBox();
+           for(int j=0;j<API.university.faculties.get(i).getDepartments().size();j++)
+           {
+            current.addItem( API.university.faculties.get(i).getDepartments().get(j).getTitle() );
+           }
+
+            list.add( current );
+        }
+
+
+        for(int i=0;i<list.size();i++)
+        {
+            if( API.university.faculties.get(i).getTitle().equals( str ) )
+            {
+                return list.get(i);
+            }
+        }
+        return null;
+/*
         JComboBox comboFI = new JComboBox();
         comboFI.addItem("Програмна інженерія");
         comboFI.addItem("Інформатика");
@@ -51,8 +77,13 @@ public class MyTableCellEditor extends AbstractCellEditor implements TableCellEd
         comboFPRN.addItem("Екологія");
         comboFPRN.addItem("Фізика");
 
+
         JComboBox comboDefault = new JComboBox();
         comboDefault.addItem("Не визначено");
+
+
+
+
         switch( str )
         {
             case "ФІ":
@@ -69,5 +100,6 @@ public class MyTableCellEditor extends AbstractCellEditor implements TableCellEd
                 return comboFPRN;
             default: return comboDefault;
         }
+*/
     };
 }

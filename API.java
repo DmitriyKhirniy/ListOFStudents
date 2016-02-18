@@ -9,19 +9,24 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.*;
+import java.util.List;
+import java.util.stream.Collector;
+import java.util.stream.Collectors;
+
 import University.*;
 
 public class API extends JFrame {
 
     private static JTable table;
     private static TableModel model;
-    public static ArrayList<Student> students;
+    public static List<Student> students;
     private static JLabel error;
-    private static University university;
+    public static University university;
     private JTextField textName = new JTextField();
     private JTree jTree = new JTree();
+    public JComboBox comboBoxFaculties = new JComboBox();
 
-    private static ArrayList<Student> studentsCopy;
+    public static ArrayList<Student> studentsCopy;
 
     public void init(JPanel panel)
     {
@@ -32,6 +37,8 @@ public class API extends JFrame {
         fillFaculties();
         initTableComponents(panel);
         initJTreeComponents(panel);
+        initCourceSelectComponent(panel);
+        initSearchComponents(panel);
     };
 
     private void createAPI()
@@ -48,23 +55,66 @@ public class API extends JFrame {
         getContentPane().add(scrollPane).setBounds(50,500,1100,200);
 
 
+        for(int i=0;i<university.faculties.size();i++)
+        {
+            comboBoxFaculties.addItem(university.faculties.get(i).getTitle());
+        };
 
-
-        JComboBox comboBoxFaculties = new JComboBox();
-        comboBoxFaculties.addItem("ФІ");
-        comboBoxFaculties.addItem("ФСНСТ");
-        comboBoxFaculties.addItem("ФГН");
-        comboBoxFaculties.addItem("ФПРН");
-        comboBoxFaculties.addItem("ФЕН");
-
-
-        //Custom editor for the third column;
-        table.getColumnModel().getColumn(2).setCellEditor(new DefaultCellEditor(comboBoxFaculties));
-        table.getColumnModel().getColumn(3).setCellEditor( new MyTableCellEditor() );
 
 
         getContentPane().add(panel);
         setPreferredSize(new Dimension(1200, 800));
+    };
+
+    public boolean isStudentsContain(Student student)
+    {
+        for (int i=0;i<students.size();i++)
+        {
+            if(String.valueOf( students.get(i).hashCode()).equals( String.valueOf( student.hashCode()) )) {
+                return true;
+            }
+        }
+
+        return false;
+    };
+
+    private void initCourceSelectComponent( JPanel panel )
+    {
+        JComboBox cources = new JComboBox();
+        cources.addItem("Усі");
+        cources.addItem("I");
+        cources.addItem("II");
+        cources.addItem("III");
+        cources.addItem("IV");
+        cources.addItem("V");
+        cources.addItem("VI");
+        cources.setBounds(1080,460,60,30);
+        cources.setFont(new Font("Serif", Font.BOLD, 17));
+        panel.add(cources);
+
+        cources.addActionListener(event ->
+        {
+            for(int i=0;i<studentsCopy.size();i++)
+            {
+                if(i >= students.size())
+                {
+                    if(!isStudentsContain( studentsCopy.get(i) )) students.add( studentsCopy.get(i) );
+                }
+                else{
+                    if(!isStudentsContain( studentsCopy.get(i) )) students.set(i , studentsCopy.get(i));
+                }
+            }
+
+            for(int i=0;i<students.size();i++)
+            {
+                if(cources.getSelectedItem().toString().equals("Усі")) break;
+                if( !(students.get(i).getCource().getCource().equals(cources.getSelectedItem().toString())))
+                {
+                    students.remove(i--);
+                }
+            }
+            model.fireTableDataChanged();
+        });
     };
 
     private void fillFaculties()
@@ -95,6 +145,56 @@ public class API extends JFrame {
         university.getFaculty(4).addDepartment( new Department("Маркетинг", university.getFaculty(4).getTitle()) );
     };
 
+    private void initSearchComponents(JPanel panel)
+    {
+        JTextField searchField = new JTextField();
+        searchField.setBounds(600,10,220,30);
+        panel.add(searchField);
+        JButton btnSearch = new JButton("Шукати");
+        btnSearch.setBounds(830,10,90,30);
+        panel.add(btnSearch);
+
+        btnSearch.addActionListener( event -> {
+            for(int i=0;i<studentsCopy.size();i++)
+            {
+                if(i >= students.size())
+                {
+                    if(!isStudentsContain( studentsCopy.get(i) )) students.add( studentsCopy.get(i) );
+                }
+                else{
+                    if(!isStudentsContain( studentsCopy.get(i) )) students.set(i , studentsCopy.get(i));
+                }
+            }
+
+            for(int i=0;i<students.size();i++)
+            {
+                if( !(students.get(i).getName().toString().contains( searchField.getText() )) )
+                {
+                    students.remove(i--);
+                }
+            }
+            model.fireTableDataChanged();
+        } );
+
+        JButton btnResetSearch = new JButton("Скинути пошук");
+        btnResetSearch.setBounds(930,10,120,30);
+        panel.add(btnResetSearch);
+
+        btnResetSearch.addActionListener( event -> {
+            for(int i=0;i<studentsCopy.size();i++)
+            {
+                if(i >= students.size()-1)
+                {
+                    if(!isStudentsContain( studentsCopy.get(i) )) students.add( studentsCopy.get(i) );
+                }
+                else{
+                    if(!isStudentsContain( studentsCopy.get(i) )) students.set(i , studentsCopy.get(i));
+                }
+            }
+            model.fireTableDataChanged();
+        } );
+    };
+
     private void initTableComponents(JPanel panel)
     {
         JButton btnAdd = new JButton("Додати студента");
@@ -119,6 +219,7 @@ public class API extends JFrame {
         error.setForeground(Color.red);
         error.setFont(new Font("Serif", Font.BOLD, 17));
         panel.add( error );
+
         btnSort1.addActionListener( new ActionListener(){
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -135,6 +236,7 @@ public class API extends JFrame {
                 model.fireTableDataChanged();
             }
         } );
+
         btnSort2.addActionListener( new ActionListener(){
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -168,8 +270,7 @@ public class API extends JFrame {
 
         getContentPane().add(panel);
 
-        // Добавим кнопку для добавления и укажем обработчик addNewItem()
-        JButton add_btn = new JButton("Додати");
+        JButton add_btn = new JButton("Выбрать");
         add_btn.setBounds(250,10,200,40);
         panel.add(add_btn);
         add_btn.addActionListener( new ActionListener() {
@@ -193,11 +294,17 @@ public class API extends JFrame {
         for(int i=0;i<university.faculties.size();i++)
         {
             DefaultMutableTreeNode topNode = new DefaultMutableTreeNode(university.getFaculty(i).getTitle());
+            DefaultMutableTreeNode topNodeStudents = new DefaultMutableTreeNode("Студенти");
+            DefaultMutableTreeNode topNodeLecturers = new DefaultMutableTreeNode("Викладачі");
             top.add(topNode);
+            topNode.add(topNodeStudents);
+            topNode.add(topNodeLecturers);
+
             for(int j=0;j<university.getFaculty(i).getDepartments().size();j++)
             {
                 DefaultMutableTreeNode middleNode = new DefaultMutableTreeNode( university.getFaculty(i).getDepartment(j).getTitle() );
                 topNode.add( middleNode  );
+
                 DefaultMutableTreeNode bottomModeStudents = new DefaultMutableTreeNode("Студенти");
                 DefaultMutableTreeNode bottomNodeLecturers = new DefaultMutableTreeNode("Викладачі");
                 middleNode.add(bottomModeStudents);
@@ -219,8 +326,6 @@ public class API extends JFrame {
                 Object obj = jTree.getLastSelectedPathComponent();
                 DefaultMutableTreeNode sel = (DefaultMutableTreeNode)obj;
                 if (tp != null){
-                    System.out.println("Selected:  "+tp.getLastPathComponent());
-
 
                     if(sel.getLevel()==0)
                     {
@@ -233,6 +338,28 @@ public class API extends JFrame {
                     }
                     else if(sel.getLevel() == 1){
                         add_btn.setText("Додати кафедру");
+                        if(sel.toString().equals("Студенти"))
+                        {
+                            for(int i=0;i<studentsCopy.size();i++)
+                            {
+                                if(i >= students.size())
+                                {
+                                    if(!isStudentsContain( studentsCopy.get(i) )) students.add( studentsCopy.get(i) );
+                                }
+                                else{
+                                    if(!isStudentsContain( studentsCopy.get(i) )) students.set(i , studentsCopy.get(i));
+                                }
+                            }
+                            model.fireTableDataChanged();
+                        }
+                    }
+                    else if(sel.getLevel()==2)
+                    {
+                        if(sel.toString().equals("Студенти"))
+                        {
+                            sortByFaculty(sel.getParent().toString());
+                            model.fireTableDataChanged();
+                        }
                     }
                     else if(sel.getLevel() == 3)
                     {
@@ -256,13 +383,38 @@ public class API extends JFrame {
         {
             if(i >= students.size())
             {
-                students.add( studentsCopy.get(i) );
+                if(!isStudentsContain( studentsCopy.get(i) )) students.add( studentsCopy.get(i) );
             }
-            else students.set(i , studentsCopy.get(i));
+            else{
+                if(!isStudentsContain( studentsCopy.get(i) )) students.set(i , studentsCopy.get(i));
+            }
         }
         for(int i=0;i<students.size();i++)
         {
             if( students.get(i).getDepartment().equals( department ) == false )
+            {
+                students.remove(i);
+                i--;
+            }
+        }
+        model.fireTableDataChanged();
+    };
+
+    public void sortByFaculty(String faculty)
+    {
+        for(int i=0;i<studentsCopy.size();i++)
+        {
+            if(i >= students.size())
+            {
+                if(!isStudentsContain( studentsCopy.get(i) )) students.add( studentsCopy.get(i) );
+            }
+            else{
+                if(!isStudentsContain( studentsCopy.get(i) )) students.set(i , studentsCopy.get(i));
+            }
+        }
+        for(int i=0;i<students.size();i++)
+        {
+            if( students.get(i).getFaculty().equals( faculty ) == false )
             {
                 students.remove(i);
                 i--;
@@ -326,6 +478,9 @@ public class API extends JFrame {
         table.getColumn("Дата народження").setMaxWidth(110);
         table.setFont( new Font("Serif", Font.BOLD, 16) );
         table.setRowHeight(30);
+
+        table.getColumnModel().getColumn(2).setCellEditor(new DefaultCellEditor(comboBoxFaculties));
+        table.getColumnModel().getColumn(3).setCellEditor( new MyTableCellEditor() );
     };
 
     private void createModel()
@@ -368,10 +523,23 @@ public class API extends JFrame {
         {
             DefaultMutableTreeNode sel = (DefaultMutableTreeNode)obj;
             // Смотрим уровень вложенности и работаем в соответствии с ним
+            System.out.println(sel.getLevel());
+
             if(sel.getLevel()==1) {
                 if( !(sel.toString().equals("Студенти")) && !(sel.toString().equals("Викладачі")) ) {
                     DefaultMutableTreeNode tmp = new DefaultMutableTreeNode(textName.getText());
                     model.insertNodeInto(tmp, sel, sel.getChildCount());
+                    System.out.println(sel.toString());
+                    for(int i=0;i<university.faculties.size();i++)
+                    {
+                        if(  university.faculties.get(i).getTitle().equals( sel.toString() ) )
+                        {
+                            university.faculties.get(i).addDepartment( new Department( textName.getText(), university.faculties.get(i).getTitle() ) );
+                            System.out.println(sel.getRoot().toString());
+                        }
+                    }
+
+
                     textName.setText("");
 
                     DefaultMutableTreeNode tmpStudents = new DefaultMutableTreeNode("Студенти");
@@ -395,6 +563,15 @@ public class API extends JFrame {
             if(sel.isRoot()) {
                 DefaultMutableTreeNode tmp = new DefaultMutableTreeNode(textName.getText());
                 model.insertNodeInto(tmp, sel, sel.getChildCount());
+
+                DefaultMutableTreeNode tmpStudents = new DefaultMutableTreeNode("Студенти");
+                DefaultMutableTreeNode tmpLecturers = new DefaultMutableTreeNode("Викладачі");
+                model.insertNodeInto(tmpStudents, tmp, tmp.getChildCount());
+                model.insertNodeInto(tmpLecturers, tmp, tmp.getChildCount());
+
+
+                university.faculties.add( new Faculty(textName.getText()  ) );
+                comboBoxFaculties.addItem( textName.getText() );
                 textName.setText("");
 
             }

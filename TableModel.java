@@ -6,11 +6,11 @@ import University.*;
 public class TableModel extends AbstractTableModel {
 
     private static JLabel error;
-    private ArrayList<Student> students;
+    private List<Student> students;
 
     private static SimpleDateFormat format = new SimpleDateFormat("dd.MM.yyyy");
 
-    public TableModel( ArrayList<Student> data, JLabel  _error )
+    public TableModel( List<Student> data, JLabel  _error )
     {
         error= _error;
         this.students = data;
@@ -105,9 +105,11 @@ public class TableModel extends AbstractTableModel {
                         students.get(rowIndex).setNames(new Names(firstName, middleName, lastName));
                     break;
                 case 2:
+                    System.out.println( value.toString());
                     students.get(rowIndex).setFaculty( value.toString() );
                     break;
                 case 3:
+                    System.out.println( value.toString());
                     students.get(rowIndex).setDepartment( value.toString() );
                     break;
                 case 5:
@@ -138,11 +140,13 @@ public class TableModel extends AbstractTableModel {
                     if (ratingPoint != null) students.get(rowIndex).setRatingPoint(ratingPoint);
                     break;
             }
+
         }
         catch( Exception exc ){
             error.setText(exc.getMessage() );
         }
         fireTableCellUpdated(rowIndex, columnIndex);
+        API.studentsCopy.set(rowIndex, API.students.get(rowIndex) );
     }
 
     private static String checkName( String string)
