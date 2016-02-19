@@ -5,9 +5,11 @@ import javax.swing.table.DefaultTableModel;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.TreePath;
+import javax.swing.tree.DefaultTreeCellRenderer;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.net.URL;
 import java.util.*;
 import java.util.List;
 import java.util.stream.Collector;
@@ -25,6 +27,7 @@ public class API extends JFrame {
     private JTextField textName = new JTextField();
     private JTree jTree = new JTree();
     public JComboBox comboBoxFaculties = new JComboBox();
+    private static JPanel panel = new JPanel();
 
     public static ArrayList<Student> studentsCopy;
 
@@ -39,34 +42,75 @@ public class API extends JFrame {
         initJTreeComponents(panel);
         initCourceSelectComponent(panel);
         initSearchComponents(panel);
+        initComboBoxComponents();
     };
 
     private void createAPI()
     {
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        JPanel panel = new JPanel();
         panel.setLayout(null);
 
         init( panel );
 
         setBackground(Color.GRAY);
 
+        JScrollPane qPane = new JScrollPane(jTree,
+            JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED,
+            JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
+
+        qPane.setViewportBorder(BorderFactory.createEmptyBorder(10, 3, 10, 3));
+        qPane.setBackground(Color.white);
+        qPane.setBounds(10,90,210,200);
+        panel.add( qPane );
+
 
 
         table.setPreferredScrollableViewportSize(new Dimension(1100, 200) );
         JScrollPane scrollPane = new JScrollPane(table);
-        getContentPane().add(scrollPane).setBounds(50,500,1100,200);
+        getContentPane().add(scrollPane).setBounds(230,90,1100,200);
 
-
-        for(int i=0;i<university.faculties.size();i++)
-        {
-            comboBoxFaculties.addItem(university.faculties.get(i).getTitle());
-        };
 
 
 
         getContentPane().add(panel);
-        setPreferredSize(new Dimension(1200, 800));
+        setPreferredSize(new Dimension(1356, 500));
+    };
+
+    private static ImageIcon createIcon(String path) {
+        URL imgURL = API.class.getResource(path);
+        if (imgURL != null) {
+            return new ImageIcon(imgURL);
+        } else {
+            System.err.println("File not found " + path);
+            return null;
+        }
+    }
+
+    private static void sortByRatingPoint()
+    {
+        boolean changes;
+        do {
+            changes = false;
+            for (int i = 0; i < students.size() - 1; i++) {
+                if (students.get(i).getRatingPoint() < students.get(i + 1).getRatingPoint()) {
+                    Student _current = students.get(i);
+                    students.set(i, students.get(i + 1));
+                    students.set(i + 1, _current);
+                    changes = true;
+                }
+            }
+
+        }
+        while (changes);
+        model.fireTableDataChanged();
+    };
+
+    private void initComboBoxComponents()
+    {
+        for(int i=0;i<university.faculties.size();i++)
+        {
+            comboBoxFaculties.addItem(university.faculties.get(i).getTitle());
+        };
     };
 
     public boolean isStudentsContain(Student student)
@@ -90,7 +134,7 @@ public class API extends JFrame {
         cources.addItem("IV");
         cources.addItem("V");
         cources.addItem("VI");
-        cources.setBounds(1080,460,60,30);
+        cources.setBounds(1205,55,60,30);
         cources.setFont(new Font("Serif", Font.BOLD, 17));
         panel.add(cources);
 
@@ -199,21 +243,25 @@ public class API extends JFrame {
 
     private void initTableComponents(JPanel panel)
     {
+        initSortByRatingPointbutton();
+        initSortByAgeButton();
+
         JButton btnAdd = new JButton("Додати студента");
-        btnAdd.setBounds( 50,710,140,30 );
+        btnAdd.setBounds( 230,55,135,30 );
         panel.add( btnAdd );
 
         JButton btnRemove = new JButton("Видалити студента");
-        btnRemove.setBounds( 200,710,170,30 );
+        btnRemove.setBounds( 230,294,170,30 );
         panel.add( btnRemove );
 
 
         JButton btnSort2 = new JButton("Сортувати за курсом");
-        btnSort2.setBounds(900,460,170,30);
+        btnSort2.setBounds(1005,55,195,30);
         panel.add( btnSort2 );
 
+
         JButton btnSort1 = new JButton("Сортувати за прізвищем");
-        btnSort1.setBounds(152,460,365,30);
+        btnSort1.setBounds(371,55,325,30);
         panel.add( btnSort1 );
 
         error = new JLabel();
@@ -256,9 +304,49 @@ public class API extends JFrame {
         });
     };
 
+    private void initSortByRatingPointbutton()
+    {
+        JButton button = new JButton();
+        ImageIcon icon = createIcon("icon2.png");
+        button.setIcon(icon);
+        button.setBounds(1271,55,58,30);
+        panel.add(button);
+
+        button.addActionListener( event -> sortByRatingPoint());
+    };
+
+    private void initSortByAgeButton()
+    {
+        JButton btnSort = new JButton();
+        ImageIcon icon = createIcon("icon2.png");
+        btnSort.setIcon(icon);
+        btnSort.setBounds(961, 55, 40,30);
+        panel.add(btnSort);
+
+        btnSort.addActionListener( event -> SortByAge() );
+    };
+
+    private void SortByAge()
+    {
+        boolean changes;
+        do {
+            changes = false;
+            for (int i = 0; i < students.size() - 1; i++) {
+                if (students.get(i).getAge() < students.get(i + 1).getAge()) {
+                    Student _current = students.get(i);
+                    students.set(i, students.get(i + 1));
+                    students.set(i + 1, _current);
+                    changes = true;
+                }
+            }
+
+        }
+        while (changes);
+        model.fireTableDataChanged();
+    };
+
     private void initJTreeComponents( JPanel panel )
     {
-        jTree.setFont(new Font("Serif", Font.BOLD, 17));
         textName.setBounds(10,10,200,40);
         panel.add( textName );
 
@@ -421,22 +509,17 @@ public class API extends JFrame {
         students.add( new Student("Вікторія", "Альбертівна", "Гульба" ,  new GregorianCalendar(1997,9,3),"ГВ №20345231" ,"II" , 191 ,university , "ФПВН" , "Право" )  );
         students.add( new Student( "Андрій" ,"Іванович", "Катафонов" ,  new GregorianCalendar(1995,4,25),"КА №34526134" ,"III" , 195 ,university , "ФІ" , "Програмна інженерія" )  );
         students.add( new Student( "Гертруда" , "Олексіївна" ,  "Богодарова",  new GregorianCalendar(1998,6,3),"БГ №14523498" ,"I" , 190.5 ,university , "ФЕН" , "Менеджмент" )  );
-        // students.add( new Student("РљРѕРЅСЃС‚СЏРЅС‚РёРЅ", "РђС„Р°РЅР°СЃС–Р№РѕРІРёС‡","Р–РµР»СѓР±", new GregorianCalendar(1993,6,9),"РљР’ в„–10793304" ,"VI" , 195)  );
-        // students.add( new Student("Р’РµСЂРѕРЅС–РєР°", "Р’РѕР»РѕРґРёРјС–СЂС–РІРЅР°" ,"Р§СѓС…Р°Р»РѕРІР°",new GregorianCalendar(1998,9,1),"РљР’ в„–10793304" ,"I" , 193)  );
-        // students.add( new Student("Р’Р°Р»РµСЂС–Р№", "Р¤РµРґРѕСЂРѕРІРёС‡", "РњРѕСЂРіРµРЅРµС†СЊ" ,  new GregorianCalendar(1999,10,28),"РљР’ в„–10793304" ,"I" , 193)  );
-        //  students.add( new Student("РђРЅРґСЂС–Р№",  "Р†РІР°РЅРѕРІРёС‡", "РљР°С‚Р°С„РѕРЅРѕРІ",new GregorianCalendar( 1998,10,14 ),"РљР’ в„–10793304" ,"I" , 187.5)    );
-        //students.add( new Student("Р“РµСЂС‚СЂСѓРґР°", "РћР»РµРєСЃС–С—РІРЅР°", "Р‘РѕРіРѕРґР°СЂРѕРІР° " , new GregorianCalendar(1997,6,7),"РљР’ в„–10793304" ,"I" , 193)  );
-        //  students.add( new Student("РћР»РµРєСЃР°РЅРґСЂР°",  "РўР°СЂР°СЃС–РІРЅР°" , "РќРµС‡СѓР№", new GregorianCalendar(1997,6,7),"РљР’ в„–10793304" ,"I" , 193)  );
-        //  students.add( new Student("Р”Р¶Р°РјР°Р»С–СЏ" ,  "РђР±РґСѓРєС–Р±РѕСЂС–РІРЅР°" , "РђР±Р°Рґ-РљР°СЂР° " ,new GregorianCalendar(1997,6,7),"РљР’ в„–10793304" ,"I" , 193)  );
-        // students.add( new Student("РЎСЋР·Р°РЅРЅР°",  "Р“РµРѕСЂРіС–С—РІРЅР°" , "РЎРµСЂРµРґР°"  ,  new GregorianCalendar(1997,6,7),"РљР’ в„–10793304" ,"I" , 193)  );
-        //  students.add( new Student("РЎС‚РµРїР°РЅ",  "РћР»РµРєСЃР°РЅРґСЂРѕРІРёС‡" , "РЁРёРЅРєР°СЂРµРІ " ,new GregorianCalendar(1997,6,7),"РљР’ в„–10793304" ,"I" , 193)  );
-        //  students.add( new Student("РЎС‚РµС„Р°РЅС–СЏ" ,  "РўРёРјСѓСЂС–РІРЅР°" , "РњРѕСЂРѕРєР° " ,  new GregorianCalendar(1997,6,7),"РљР’ в„–10793304" ,"I" , 193)  );
-        //  students.add( new Student("Р’С–СЂР°", "РњРёРєРѕР»Р°С–РІРЅР°" , "РќРµСЂРѕР±Р° "  ,  new GregorianCalendar(1997,6,7),"РљР’ в„–10793304" ,"I" , 193)  );
-        // students.add( new Student("Р’Р°СЃРёР»СЊ" ,  "РџРµС‚СЂРѕРІРёС‡", "Р”СѓРґРєР°"  , new GregorianCalendar(1997,6,7),"РљР’ в„–10793304" ,"I" , 193)  );
-        //  students.add( new Student("Р–Р°РЅРЅР°", "Р†РіРѕСЂС–РІРЅР°" , "РљР°РјР°РЅСЃСЊРєР°"   , new GregorianCalendar(1997,6,7),"РљР’ в„–10793304" ,"I" , 193)  );
-        // students.add( new Student("РћР»РµРі", "РћР»РµРіРѕРІРёС‡", "Р—РµР»РµРЅСЊРѕРІ "  ,  new GregorianCalendar(1997,6,7),"РљР’ в„–10793304" ,"I" , 193)  );
-        //  students.add( new Student("РђР»СЊР±РµСЂС‚" , "Р“РµСЂРјР°РЅРѕРІРёС‡" , "РќР°РґРјР°РЅРєРѕ "  , new GregorianCalendar(1996,4,17),"РљР’ в„–10793304" ,"II" , 189.5)  );
-        //  students.add( new Student("РђРЅРіРµР»С–РЅР°", "РћР»РµРєСЃР°РЅРґСЂС–РІРЅР°", "РљРѕСЃС‚СЋС…РѕРІРёС‡ "  , new GregorianCalendar(1995,10,18),"РљР’ в„–10798903" ,"III" , 194.5)  );
+        students.add( new Student( "Олександра" , "Тарасівна", "Нечуй", new GregorianCalendar(1992,7,12),"НА№34527134" ,"IV" , 194 , university , "ФЕН" , "Філологія")  );
+        students.add( new Student( "Джамалія" , "Абдукіборівна" , "Абад-Кара",new GregorianCalendar(1995,8,24),"АК№23415367" ,"III" , 186 ,  university , "ФСНСТ" , "Психологія") );
+        students.add( new Student("Сюзанна",  "Георгіївна", "Середа" ,  new GregorianCalendar(1997,12,1),"СС№12345342" ,"I" , 190,university , "ФЕН" , "Фінанси і кредит" )  );
+        students.add( new Student("Степан" , "Олександрович", "Шинкарев" ,new GregorianCalendar( 1999,3,1 ),"ШС№23415345" ,"I" , 199, university , "ФСНСТ" , "Журналістика" )    );
+        students.add( new Student( "Стефанія",  "Тимурівна" , "Морока" , new GregorianCalendar(1994,5,28),"МС№23456890" ,"V" , 198,university , "ФГН" , "Культурологія" )  );
+        students.add( new Student(  "Віра",  "Миколаівна" , "Нероба",  new GregorianCalendar(1996,6,5),"НВ№24586562" ,"VI" , 193 ,university , "ФГН" , "Фінанси і кредит" )  );
+        students.add( new Student( "Василь" ,"Петрович" , "Дудка" ,new GregorianCalendar(1998,8,6),"ДВ№89645234" ,"II" , 185, university , "ФГН" , "Історія")  );
+        students.add( new Student( "Жанна" ,"Ігорівна" , "Каманська",  new GregorianCalendar(1999,4,18),"КЖ№12546735" ,"I" , 189 , university , "ФПВН" , "Право")  );
+        students.add( new Student( "Олег" ,"Олегович" , "Зеленьов",  new GregorianCalendar(1996,11,27),"ЗЩ№45634289" ,"III" , 193, university , "ФІ" , "Прикладна математика" )  );
+        students.add( new Student( "Альберт" , "Германович" , "Надманко" , new GregorianCalendar(1995,6,21),"НФ№27645198" ,"IV" , 194,  university , "ФПРН" , "Біологія")  );
+        students.add( new Student( "Ангеліна" , "Олександрівна" , "Костюхович"   , new GregorianCalendar(1997,01,24),"КФ№56723111" ,"I" , 187, university , "ФСНСТ" , "Політологія")  );
         studentsCopy = new ArrayList<Student>(students);
     };
 
