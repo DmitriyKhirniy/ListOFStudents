@@ -70,10 +70,13 @@ public class API extends JFrame {
         getContentPane().add(scrollPane).setBounds(230,90,1100,200);
 
 
+        JButton button = new JButton("");
+
+
 
 
         getContentPane().add(panel);
-        setPreferredSize(new Dimension(1356, 500));
+        setPreferredSize(new Dimension(1356, 370));
     };
 
     private static ImageIcon createIcon(String path) {
@@ -194,10 +197,11 @@ public class API extends JFrame {
     private void initSearchComponents(JPanel panel)
     {
         JTextField searchField = new JTextField();
-        searchField.setBounds(600,10,220,30);
+        searchField.setBounds(880,295,220,31);
+        searchField.setFont(new Font("Serif", Font.BOLD, 17));
         panel.add(searchField);
         JButton btnSearch = new JButton("Шукати");
-        btnSearch.setBounds(830,10,90,30);
+        btnSearch.setBounds(1105,295,90,30);
         panel.add(btnSearch);
 
         btnSearch.addActionListener( event -> {
@@ -223,7 +227,7 @@ public class API extends JFrame {
         } );
 
         JButton btnResetSearch = new JButton("Скинути пошук");
-        btnResetSearch.setBounds(930,10,120,30);
+        btnResetSearch.setBounds(1200,295,129,30);
         panel.add(btnResetSearch);
 
         btnResetSearch.addActionListener( event -> {
@@ -347,18 +351,22 @@ public class API extends JFrame {
 
     private void initJTreeComponents( JPanel panel )
     {
-        textName.setBounds(10,10,200,40);
+        textName.setBounds(10,55,210,30);
+        textName.setFont( new Font("Serif", Font.BOLD, 17)  );
         panel.add( textName );
 
         getContentPane().add(panel);
 
-        JButton add_btn = new JButton("Выбрать");
-        add_btn.setBounds(250,10,200,40);
+        JButton add_btn = new JButton("Вибрати");
+        add_btn.setBounds(10,20,210,30);
         panel.add(add_btn);
         add_btn.addActionListener( event -> addNewItem());
 
-        JButton remove_btn = new JButton("Remove");
-        remove_btn.addActionListener( event -> removeItem());
+        JButton removeBtn = new JButton("Вибрати");
+        removeBtn.setBounds(10,295,208,30);
+        panel.add( removeBtn );
+
+        removeBtn.addActionListener( event -> removeItem());
 
         DefaultMutableTreeNode top = new DefaultMutableTreeNode("Університет");
         top.add(new DefaultMutableTreeNode("Студенти"));
@@ -403,6 +411,7 @@ public class API extends JFrame {
                     if(sel.getLevel()==0)
                     {
                         add_btn.setText("Додати факультет");
+                        removeBtn.setText("Видалити факультет");
                         if(sel.toString().equals("Студенти"))
                         {
 
@@ -411,6 +420,7 @@ public class API extends JFrame {
                     }
                     else if(sel.getLevel() == 1){
                         add_btn.setText("Додати кафедру");
+                        removeBtn.setText("Видалити кафедру");
                         if(sel.toString().equals("Студенти"))
                         {
                             for(int i=0;i<studentsCopy.size();i++)
@@ -582,28 +592,23 @@ public class API extends JFrame {
 
     private void addNewItem()
     {
-        // ВАЖНО - работа с уже готовым деревом может производится только через модель дерева.
-        // Только в этом случае гарантируется правильная работа и вызов событий
-        // В противном случае новые узлы могут быть не прорисованы
         DefaultTreeModel model = (DefaultTreeModel)jTree.getModel();
         Object obj = jTree.getLastSelectedPathComponent();
         if(obj!=null)
         {
             DefaultMutableTreeNode sel = (DefaultMutableTreeNode)obj;
-            // Смотрим уровень вложенности и работаем в соответствии с ним
-            System.out.println(sel.getLevel());
+
 
             if(sel.getLevel()==1) {
                 if( !(sel.toString().equals("Студенти")) && !(sel.toString().equals("Викладачі")) ) {
                     DefaultMutableTreeNode tmp = new DefaultMutableTreeNode(textName.getText());
                     model.insertNodeInto(tmp, sel, sel.getChildCount());
-                    System.out.println(sel.toString());
+
                     for(int i=0;i<university.faculties.size();i++)
                     {
                         if(  university.faculties.get(i).getTitle().equals( sel.toString() ) )
                         {
                             university.faculties.get(i).addDepartment( new Department( textName.getText(), university.faculties.get(i).getTitle() ) );
-                            System.out.println(sel.getRoot().toString());
                         }
                     }
 
@@ -658,11 +663,13 @@ public class API extends JFrame {
             // Корень удалять нельзя
             if(!sel.isRoot())
             {
-                if(sel.getChildCount()==0)
+                if(sel.getChildCount()==0) {
                     model.removeNodeFromParent(sel);
+                }
                 else
                     // Если есть "детишки" выведем сообщение
                     JOptionPane.showMessageDialog(null, "Remove all subnodes");
+                    model.removeNodeFromParent(sel);
             }
         }
     }
