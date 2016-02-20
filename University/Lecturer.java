@@ -2,7 +2,7 @@ package University;
 
 import java.util.GregorianCalendar;
 
-public class Lecturer extends Person {
+public class Lecturer extends Person implements Comparable {
 
     private String position;
     private String faculty;
@@ -21,6 +21,16 @@ public class Lecturer extends Person {
         this.department = department;
         this.responsibility = responsibility;
     };
+
+    public int compareTo(Object obj) {
+        Lecturer entry = (Lecturer) obj;
+
+        int result = super.getName().getLastName().compareTo(entry.getName().getLastName());
+        if(result != 0) {
+            return result;
+        }
+        return 0;
+    }
 
     public int getId()
     {

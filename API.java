@@ -29,8 +29,15 @@ public class API extends JFrame {
     public static JComboBox comboBoxFaculties = new JComboBox();
     private static JPanel panel = new JPanel();
     public static List<Lecturer> lecturers = new ArrayList<Lecturer>();
+    public static List<Lecturer> lecturersCopy;
+    private static JTable lecturersTable;
     private static LecturersModel lecturersModel;
     public static ArrayList<Student> studentsCopy;
+    private static JScrollPane lecturersScrollPane;
+    private static JScrollPane studentsScrollPane;
+    public static String currentTable = "students";
+    private static JButton btnAddPerson;
+    private static JButton btnRemovePerson;
 
     public void init()
     {
@@ -45,6 +52,8 @@ public class API extends JFrame {
         initSearchComponents();
         initComboBoxComponents();
         fillListOfLecturers();
+
+        lecturersModel = new LecturersModel(lecturers,error);
     };
 
     private void createAPI()
@@ -67,13 +76,9 @@ public class API extends JFrame {
 
 
 
-
-
         table.setPreferredScrollableViewportSize(new Dimension(1100, 200) );
-        JScrollPane scrollPane = new JScrollPane(table);
-        getContentPane().add(scrollPane).setBounds(230,90,1100,200);
-
-
+        studentsScrollPane = new JScrollPane(table);
+        getContentPane().add(studentsScrollPane).setBounds(230,90,1100,200);
 
 
         getContentPane().add(panel);
@@ -128,6 +133,17 @@ public class API extends JFrame {
         return false;
     };
 
+    public boolean isLecturersContain(Lecturer lecturer)
+    {
+        for (int i=0;i<lecturers.size();i++)
+        {
+            if(String.valueOf( lecturers.get(i).hashCode()).equals( String.valueOf( lecturer.hashCode()) )) {
+                return true;
+            }
+        }
+        return false;
+    };
+
     private void initCourceSelectComponent()
     {
         JComboBox cources = new JComboBox();
@@ -144,26 +160,23 @@ public class API extends JFrame {
 
         cources.addActionListener(event ->
         {
-            for(int i=0;i<studentsCopy.size();i++)
-            {
-                if(i >= students.size())
-                {
-                    if(!isStudentsContain( studentsCopy.get(i) )) students.add( studentsCopy.get(i) );
+            if(currentTable.equals("students")) {
+                for (int i = 0; i < studentsCopy.size(); i++) {
+                    if (i >= students.size()) {
+                        if (!isStudentsContain(studentsCopy.get(i))) students.add(studentsCopy.get(i));
+                    } else {
+                        if (!isStudentsContain(studentsCopy.get(i))) students.set(i, studentsCopy.get(i));
+                    }
                 }
-                else{
-                    if(!isStudentsContain( studentsCopy.get(i) )) students.set(i , studentsCopy.get(i));
-                }
-            }
 
-            for(int i=0;i<students.size();i++)
-            {
-                if(cources.getSelectedItem().toString().equals("Усі")) break;
-                if( !(students.get(i).getCource().getCource().equals(cources.getSelectedItem().toString())))
-                {
-                    students.remove(i--);
+                for (int i = 0; i < students.size(); i++) {
+                    if (cources.getSelectedItem().toString().equals("Усі")) break;
+                    if (!(students.get(i).getCource().getCource().equals(cources.getSelectedItem().toString()))) {
+                        students.remove(i--);
+                    }
                 }
+                model.fireTableDataChanged();
             }
-            model.fireTableDataChanged();
         });
     };
 
@@ -207,25 +220,38 @@ public class API extends JFrame {
 
 
         btnSearch.addActionListener( event -> {
-            for(int i=0;i<studentsCopy.size();i++)
-            {
-                if(i >= students.size())
-                {
-                    if(!isStudentsContain( studentsCopy.get(i) )) students.add( studentsCopy.get(i) );
+            if(currentTable.equals("students")) {
+                for (int i = 0; i < studentsCopy.size(); i++) {
+                    if (i >= students.size()) {
+                        if (!isStudentsContain(studentsCopy.get(i))) students.add(studentsCopy.get(i));
+                    } else {
+                        if (!isStudentsContain(studentsCopy.get(i))) students.set(i, studentsCopy.get(i));
+                    }
                 }
-                else{
-                    if(!isStudentsContain( studentsCopy.get(i) )) students.set(i , studentsCopy.get(i));
-                }
-            }
 
-            for(int i=0;i<students.size();i++)
-            {
-                if( !(students.get(i).getName().toString().contains( searchField.getText() )) )
-                {
-                    students.remove(i--);
+                for (int i = 0; i < students.size(); i++) {
+                    if (!(students.get(i).getName().toString().contains(searchField.getText()))) {
+                        students.remove(i--);
+                    }
                 }
+                model.fireTableDataChanged();
+            }else
+            {
+                for (int i = 0; i < lecturersCopy.size(); i++) {
+                    if (i >= lecturers.size()) {
+                        if (!isLecturersContain(lecturersCopy.get(i))) lecturers.add(lecturersCopy.get(i));
+                    } else {
+                        if (!isLecturersContain(lecturersCopy.get(i))) lecturers.set(i, lecturersCopy.get(i));
+                    }
+                }
+
+                for (int i = 0; i < lecturers.size(); i++) {
+                    if (!(lecturers.get(i).getName().toString().contains(searchField.getText()))) {
+                        lecturers.remove(i--);
+                    }
+                }
+                lecturersModel.fireTableDataChanged();
             }
-            model.fireTableDataChanged();
         } );
 
         JButton btnResetSearch = new JButton("Скинути пошук");
@@ -233,20 +259,31 @@ public class API extends JFrame {
         panel.add(btnResetSearch);
 
         btnResetSearch.addActionListener( event -> {
-            for(int i=0;i<studentsCopy.size();i++)
+            if(currentTable.equals("students")) {
+                for (int i = 0; i < studentsCopy.size(); i++) {
+                    if (i >= students.size() - 1) {
+                        if (!isStudentsContain(studentsCopy.get(i))) students.add(studentsCopy.get(i));
+                    } else {
+                        if (!isStudentsContain(studentsCopy.get(i))) students.set(i, studentsCopy.get(i));
+                    }
+                }
+                model.fireTableDataChanged();
+                searchField.setText("");
+            }else
             {
-                if(i >= students.size()-1)
-                {
-                    if(!isStudentsContain( studentsCopy.get(i) )) students.add( studentsCopy.get(i) );
+                for (int i = 0; i < lecturersCopy.size(); i++) {
+                    if (i >= lecturers.size()) {
+                        if (!isLecturersContain(lecturersCopy.get(i))) lecturers.add(lecturersCopy.get(i));
+                    } else {
+                        if (!isLecturersContain(lecturersCopy.get(i))) lecturers.set(i, lecturersCopy.get(i));
+                    }
                 }
-                else{
-                    if(!isStudentsContain( studentsCopy.get(i) )) students.set(i , studentsCopy.get(i));
-                }
+                lecturersModel.fireTableDataChanged();
+                searchField.setText("");
             }
-            model.fireTableDataChanged();
-            searchField.setText("");
         } );
     };
+
 
     private void initTableComponents()
     {
@@ -254,13 +291,13 @@ public class API extends JFrame {
         initSortByAgeButton();
         initSelectPersonComponents();
 
-        JButton btnAdd = new JButton("Додати студента");
-        btnAdd.setBounds( 230,55,135,30 );
-        panel.add( btnAdd );
+        btnAddPerson = new JButton("Додати студента");
+        btnAddPerson.setBounds( 230,55,135,30 );
+        panel.add( btnAddPerson );
 
-        JButton btnRemove = new JButton("Видалити студента");
-        btnRemove.setBounds( 230,294,170,30 );
-        panel.add( btnRemove );
+        btnRemovePerson = new JButton("Видалити студента");
+        btnRemovePerson.setBounds( 230,294,170,30 );
+        panel.add( btnRemovePerson );
 
 
         JButton btnSort2 = new JButton("Сортувати за курсом");
@@ -279,17 +316,32 @@ public class API extends JFrame {
 
         btnSort1.addActionListener( event ->
         {
-            Student[] stds = new Student[ students.size() ];
+            if(currentTable.equals("students")) {
+                Student[] stds = new Student[students.size()];
 
-            for(int i=0;i<stds.length;i++){
-                stds[i] = students.get(i);
-            }
-            Arrays.sort( stds );
+                for (int i = 0; i < stds.length; i++) {
+                    stds[i] = students.get(i);
+                }
+                Arrays.sort(stds);
 
-            for(int i=0;i<stds.length;i++){
-                students.set( i , stds[i] );
+                for (int i = 0; i < stds.length; i++) {
+                    students.set(i, stds[i]);
+                }
+                model.fireTableDataChanged();
+            }else
+            {
+                Lecturer[] stds = new Lecturer[lecturers.size()];
+
+                for (int i = 0; i < stds.length; i++) {
+                    stds[i] = lecturers.get(i);
+                }
+                Arrays.sort(stds);
+
+                for (int i = 0; i < stds.length; i++) {
+                    lecturers.set(i, stds[i]);
+                }
+                lecturersModel.fireTableDataChanged();
             }
-            model.fireTableDataChanged();
         });
 
         btnSort2.addActionListener(event ->
@@ -298,16 +350,28 @@ public class API extends JFrame {
             model.fireTableDataChanged();
         });
 
-        btnRemove.addActionListener(event ->
+        btnRemovePerson.addActionListener(event ->
         {
-            if( table.getSelectedRows().length > 0 ) students.remove( table.getSelectedRows()[0] );
-            model.fireTableDataChanged();
+            if (currentTable.equals("students")) {
+                if (table.getSelectedRows().length > 0) students.remove(table.getSelectedRows()[0]);
+                model.fireTableDataChanged();
+            }else
+            {
+                if (table.getSelectedRows().length > 0) lecturers.remove(table.getSelectedRows()[0]);
+                lecturersModel.fireTableDataChanged();
+            }
         });
 
-        btnAdd.addActionListener(event ->
+        btnAddPerson.addActionListener(event ->
         {
-            students.add( new Student("Ім'я","По-батькові", "Прізвище",new GregorianCalendar(0000,00,00),"КВ №00000000","I" , 100 ,university , "ФІ" , "Програмна інженерія" ) );
-            model.fireTableDataChanged();
+            if(currentTable.equals("students")) {
+                students.add(new Student("Ім'я", "По-батькові", "Прізвище", new GregorianCalendar(0000, 00, 00), "КВ №00000000", "I", 100, university, "ФІ", "Програмна інженерія"));
+                model.fireTableDataChanged();
+            }else
+            {
+                lecturers.add( new Lecturer( "Ім'я", "По-батькові", "Прізвище", new GregorianCalendar(0000, 00, 00),university,"", "" ,"" , "") );
+                lecturersModel.fireTableDataChanged();
+            }
         });
     };
 
@@ -325,9 +389,16 @@ public class API extends JFrame {
         btnStudents.addActionListener(event -> {
             table.setModel(model);
             setTableColumnSizeForStudents();
+            currentTable = "students";
+            btnAddPerson.setText("Додати студента");
+            btnRemovePerson.setText("Видалити студента");
         });
         btnLecturers.addActionListener(event ->{
+            table.setModel(lecturersModel);
             setTableColumnSizeForLecturers();
+            currentTable = "lecturers";
+            btnAddPerson.setText("Додати викладача");
+            btnRemovePerson.setText("Видалити викладача");
         });
 
     };
@@ -356,21 +427,40 @@ public class API extends JFrame {
 
     private void SortByAge()
     {
-        boolean changes;
-        do {
-            changes = false;
-            for (int i = 0; i < students.size() - 1; i++) {
-                if (students.get(i).getAge() < students.get(i + 1).getAge()) {
-                    Student _current = students.get(i);
-                    students.set(i, students.get(i + 1));
-                    students.set(i + 1, _current);
-                    changes = true;
+        if(currentTable.equals("students")) {
+            boolean changes;
+            do {
+                changes = false;
+                for (int i = 0; i < students.size() - 1; i++) {
+                    if (students.get(i).getAge() < students.get(i + 1).getAge()) {
+                        Student _current = students.get(i);
+                        students.set(i, students.get(i + 1));
+                        students.set(i + 1, _current);
+                        changes = true;
+                    }
                 }
-            }
 
+            }
+            while (changes);
+            model.fireTableDataChanged();
+        }else
+        {
+            boolean changes;
+            do {
+                changes = false;
+                for (int i = 0; i < lecturers.size() - 1; i++) {
+                    if (lecturers.get(i).getAge() < lecturers.get(i + 1).getAge()) {
+                        Lecturer _current = lecturers.get(i);
+                        lecturers.set(i, lecturers.get(i + 1));
+                        lecturers.set(i + 1, _current);
+                        changes = true;
+                    }
+                }
+
+            }
+            while (changes);
+            lecturersModel.fireTableDataChanged();
         }
-        while (changes);
-        model.fireTableDataChanged();
     };
 
     private void initJTreeComponents()
@@ -464,6 +554,19 @@ public class API extends JFrame {
                                 }
                             }
                             model.fireTableDataChanged();
+                        }else if(sel.toString().equals("Викладачі"))
+                        {
+                            for(int i=0;i<lecturersCopy.size();i++)
+                            {
+                                if(i >= lecturers.size())
+                                {
+                                    if(!isLecturersContain( lecturersCopy.get(i) )) lecturers.add( lecturersCopy.get(i) );
+                                }
+                                else{
+                                    if(!isLecturersContain( lecturersCopy.get(i) )) lecturers.set(i , lecturersCopy.get(i));
+                                }
+                            }
+                            lecturersModel.fireTableDataChanged();
                         }
                     }
                     else if(sel.getLevel()==2)
@@ -473,6 +576,11 @@ public class API extends JFrame {
                             removeBtn.setText("Виберіть кафедру");
                             sortByFaculty(sel.getParent().toString());
                             model.fireTableDataChanged();
+                        }
+                        else if(sel.toString().equals("Викладачі"))
+                        {
+                            sortLecturersByFaculty(sel.getParent().toString());
+                            lecturersModel.fireTableDataChanged();
                         }
                         else if(!(sel.toString().equals("Студенти")) && !(sel.toString().equals("Викладачі")))
                         {
@@ -484,8 +592,8 @@ public class API extends JFrame {
                         if(sel.toString().equals("Студенти")) {
                            sortByDepartment( sel.getParent().toString() );
                         }
-                        else {
-
+                        else if(sel.toString().equals("Викладачі")){
+                            sortLecturersByDepartment( sel.getParent().toString() );
                         }
                     }
 
@@ -518,6 +626,29 @@ public class API extends JFrame {
         model.fireTableDataChanged();
     };
 
+    private void sortLecturersByDepartment(String department)
+    {
+        for(int i=0;i<lecturersCopy.size();i++)
+        {
+            if(i >= lecturers.size())
+            {
+                if(!isLecturersContain( lecturersCopy.get(i) )) lecturers.add( lecturersCopy.get(i) );
+            }
+            else{
+                if(!isLecturersContain( lecturersCopy.get(i) )) lecturers.set(i , lecturersCopy.get(i));
+            }
+        }
+        for(int i=0;i<lecturers.size();i++)
+        {
+            if( lecturers.get(i).getDepartment().equals( department ) == false )
+            {
+                lecturers.remove(i);
+                i--;
+            }
+        }
+        lecturersModel.fireTableDataChanged();
+    };
+
     public void sortByFaculty(String faculty)
     {
         for(int i=0;i<studentsCopy.size();i++)
@@ -539,6 +670,28 @@ public class API extends JFrame {
             }
         }
         model.fireTableDataChanged();
+    };
+
+    private void sortLecturersByFaculty( String faculty )
+    {
+        for(int i=0;i<lecturersCopy.size();i++)
+        {
+            if(i >= lecturers.size())
+            {
+                if(!isLecturersContain( lecturersCopy.get(i) )) lecturers.add( lecturersCopy.get(i) );
+            }
+            else{
+                if(!isLecturersContain( lecturersCopy.get(i) )) lecturers.set(i , lecturersCopy.get(i));
+            }
+        }
+        for(int i=0;i<lecturers.size();i++)
+        {
+            if( lecturers.get(i).getFaculty().equals( faculty ) == false )
+            {
+                lecturers.remove(i);
+                i--;
+            }
+        }
     };
 
     private void fillArrayOfStudents()
@@ -571,6 +724,8 @@ public class API extends JFrame {
     private void fillListOfLecturers()
     {
         lecturers.add( new Lecturer( "Михайло", "Віталійович", "Рудківський" , new GregorianCalendar(1957,7,4), university , "Викладач", "ФЕН" , "Менеджмент" , "Основи менеджменту") );
+        lecturers.add( new Lecturer( "Михайло", "Віталійович", "Ананасов" , new GregorianCalendar(1982,17,9), university , "Викладач", "ФЕН" , "Менеджмент" , "Основи менеджменту") );
+        lecturersCopy = new ArrayList<Lecturer>( lecturers );
     };
 
 
@@ -604,21 +759,19 @@ public class API extends JFrame {
 
     private void setTableColumnSizeForLecturers()
     {
-        table.setModel(new LecturersModel(lecturers,error));
         table.getColumnModel().getColumn(0).setMinWidth(102);
         table.getColumnModel().getColumn(0).setMaxWidth(102);
-        //table.getColumn("ID").setMinWidth(102);
-       // table.getColumn("ID").setMaxWidth(102);
-        table.getColumn("Прзвище, ім'я ,по батькові").setMinWidth(365);
-        table.getColumn("Прзвище, ім'я ,по батькові").setMaxWidth(365);
-        table.getColumn("Факультет").setMinWidth(70);
-        table.getColumn("Факультет").setMaxWidth(70);
-        table.getColumn("Напрямок").setMinWidth(194);
-        table.getColumn("Напрямок").setMaxWidth(194);
-        table.getColumn("Вік").setMinWidth(40);
-        table.getColumn("Вік").setMaxWidth(40);
+        table.getColumnModel().getColumn(1).setMinWidth(365);
+        table.getColumnModel().getColumn(1).setMaxWidth(365);
+        table.getColumnModel().getColumn(2).setMinWidth(70);
+        table.getColumnModel().getColumn(2).setMaxWidth(70);
+        table.getColumnModel().getColumn(3).setMinWidth(194);
+        table.getColumnModel().getColumn(3).setMaxWidth(194);
+        table.getColumnModel().getColumn(4).setMinWidth(40);
+        table.getColumnModel().getColumn(4).setMaxWidth(40);
+        table.setRowHeight(30);
         table.getColumnModel().getColumn(2).setCellEditor(new DefaultCellEditor(comboBoxFaculties));
-        table.getColumnModel().getColumn(3).setCellEditor( new MyTableCellEditor() );
+        table.getColumnModel().getColumn(3).setCellEditor( new LecturersTableCellEditor() );
     };
 
     private void createTable()
