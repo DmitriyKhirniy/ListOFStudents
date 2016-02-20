@@ -5,10 +5,8 @@ import java.util.Calendar;
 import java.util.GregorianCalendar;
 import java.util.StringTokenizer;
 
-//In this class described properties and method characterizedto people
 public class Person {
 
-    //private properties
     private Names name;
 
     private GregorianCalendar birthDate;

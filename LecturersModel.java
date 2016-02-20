@@ -1,29 +1,30 @@
+import University.*;
+
 import javax.swing.*;
 import javax.swing.table.AbstractTableModel;
-import java.util.*;
 import java.text.SimpleDateFormat;
-import University.*;
-public class TableModel extends AbstractTableModel {
+import java.util.*;
 
+public class LecturersModel extends AbstractTableModel {
+    private static List<Lecturer> lecturers;
     private static JLabel error;
-    private List<Student> students;
 
     private static SimpleDateFormat format = new SimpleDateFormat("dd.MM.yyyy");
 
-    public TableModel( List<Student> data, JLabel  _error )
+    public LecturersModel(List<Lecturer> lecturers, JLabel error)
     {
-        error= _error;
-        this.students = data;
-    };
+        this.lecturers = lecturers;
+        this.error = error;
+    }
 
     @Override
     public int getRowCount() {
-        return students.size();
+        return lecturers.size();
     }
 
     @Override
     public int getColumnCount() {
-        return 9;
+        return 8;
     }
 
     @Override
@@ -49,13 +50,10 @@ public class TableModel extends AbstractTableModel {
                 result = "Дата народження";
                 break;
             case 6:
-                result = "Номер студенського";
+                result = "Звання";
                 break;
             case 7:
-                result = "Курс";
-                break;
-            case 8:
-                result = "Рейтинговій бал";
+                result = "Що викладає";
                 break;
         }
         return result;
@@ -65,23 +63,21 @@ public class TableModel extends AbstractTableModel {
     public Object getValueAt(int r, int c) {
         switch (c) {
             case 0:
-                return students.get(r).hashCode();
+                 return lecturers.get(r).getId();
             case 1:
-                return students.get(r).getName();
+                 return lecturers.get(r).getName();
             case 2:
-                return students.get(r).getFaculty();
+                 return lecturers.get(r).getFaculty();
             case 3:
-                return students.get(r).getDepartment();
+                 return lecturers.get(r).getDepartment();
             case 4:
-                return students.get(r).getAge();
+                 return lecturers.get(r).getAge();
             case 5:
-                return format.format( students.get(r).getDate().getTime() );
+                 return format.format( lecturers.get(r).getDate().getTime() );
             case 6:
-                return students.get(r).getNum().getStdNum();
+                 return lecturers.get(r).getPosition();
             case 7:
-                return students.get(r).getCource().getCource();
-            case 8:
-                return students.get(r).getRatingPoint();
+                return lecturers.get(r).getResponsibility();
             default:
                 return "";
         }
@@ -93,7 +89,6 @@ public class TableModel extends AbstractTableModel {
     }
     @Override
     public void setValueAt(Object value, int rowIndex, int columnIndex) {
-        error.setText("");
         try {
             switch (columnIndex) {
                 case 1:
@@ -101,14 +96,14 @@ public class TableModel extends AbstractTableModel {
                     String lastName = str.nextToken();
                     String firstName = str.nextToken();
                     String middleName = str.nextToken();
-                    if (checkName(lastName) != null && checkName(firstName) != null && checkName(middleName) != null)
-                        students.get(rowIndex).setNames(new Names(firstName, middleName, lastName));
+                     if (checkName(lastName) != null && checkName(firstName) != null && checkName(middleName) != null)
+                     lecturers.get(rowIndex).setNames(new Names(firstName, middleName, lastName));
                     break;
                 case 2:
-                    students.get(rowIndex).setFaculty( value.toString() );
+                     lecturers.get(rowIndex).setFaculty( value.toString() );
                     break;
                 case 3:
-                    students.get(rowIndex).setDepartment( value.toString() );
+                    lecturers.get(rowIndex).setDepartment( value.toString() );
                     break;
                 case 5:
                     String time = value.toString();
@@ -118,24 +113,18 @@ public class TableModel extends AbstractTableModel {
                         _time[1] = Integer.valueOf(time.substring(3, 5));
                         _time[2] = Integer.valueOf(time.substring(6, 10));
                     }
-                    Integer age = calculateAge(new GregorianCalendar(_time[2], _time[1], _time[0]).getTime());
-                    if (age != null) {
-                        students.get(rowIndex).setDate(new GregorianCalendar(_time[2], _time[1], _time[0]));
-                        students.get(rowIndex).setAge(calculateAge(students.get(rowIndex).getDate().getTime()));
-                        for (int i = 0; i < getColumnCount(); i++) fireTableCellUpdated(rowIndex, i);
-                    }
+                      Integer age = calculateAge(new GregorianCalendar(_time[2], _time[1], _time[0]).getTime());
+                      if (age != null) {
+                          lecturers.get(rowIndex).setDate(new GregorianCalendar(_time[2], _time[1], _time[0]));
+                          lecturers.get(rowIndex).setAge(calculateAge(lecturers.get(rowIndex).getDate().getTime()));
+                          for (int i = 0; i < getColumnCount(); i++) fireTableCellUpdated(rowIndex, i);
+                      }
                     break;
                 case 6:
-                    String num = checkNum( value.toString() );
-                    if(num!= null ) students.get(rowIndex).setStudentNum(value.toString());
+                    lecturers.get(rowIndex).setPosition(value.toString());
                     break;
                 case 7:
-                    String cource = checkCource(value.toString());
-                    if (cource != null) students.get(rowIndex).setCource(cource);
-                    break;
-                case 8:
-                    Double ratingPoint = checkRatingPoint( Double.valueOf(value.toString()) );
-                    if (ratingPoint != null) students.get(rowIndex).setRatingPoint(ratingPoint);
+                    lecturers.get(rowIndex).setResponsibility(value.toString());
                     break;
             }
 
@@ -144,9 +133,7 @@ public class TableModel extends AbstractTableModel {
             error.setText(exc.getMessage() );
         }
         fireTableCellUpdated(rowIndex, columnIndex);
-        API.studentsCopy.set(rowIndex, API.students.get(rowIndex) );
     }
-
     private static String checkName( String string)
     {
         if( string.length() < 3 || string.length() > 15 )
@@ -182,50 +169,5 @@ public class TableModel extends AbstractTableModel {
         }
         return age;
     }
-
-    private static String checkCource( String cource )
-    {
-        switch( cource ){
-            case "I": return "I";
-            case "II": return "II";
-            case "III": return "II";
-            case "IV": return "IV";
-            case "V": return "V";
-            case "VI": return "VI";
-            case "1": return "I";
-            case "2": return "II";
-            case "3": return "III";
-            case "4": return "IV";
-            case "5": return "V";
-            case "6": return "VI";
-            default:
-                error.setText("Error.Can't set cource.");
-                return null;
-        }
-    };
-
-    private static Double checkRatingPoint( double point )
-    {
-        if(point < 100 || point > 220) {
-            error.setText("Error.Undefined rating point.");
-            return null;
-        }
-        else{
-            return point;
-        }
-    };
-
-    private static String checkNum( String num )
-    {
-        String check = new String( num.replace( "", "") );
-
-        char[] numbers = {0,1,2,3,4,5,6,7,8,9};
-
-        if( check.length() != 12 ||  check.charAt(3)!='№'  ) {
-            error.setText("Error.Undefined format of student number.");
-            return null;
-        }
-        else return num;
-    };
-
 }
+

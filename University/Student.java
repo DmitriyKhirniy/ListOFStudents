@@ -84,7 +84,6 @@ public class Student extends Person implements Comparable{
     };
     public void setDepartment( String department )
     {
-        System.out.println("SETTING1");
         this.department = department;
     };
 }
