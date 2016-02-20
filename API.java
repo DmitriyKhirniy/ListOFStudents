@@ -28,12 +28,10 @@ public class API extends JFrame {
     private static JTree jTree = new JTree();
     public static JComboBox comboBoxFaculties = new JComboBox();
     private static JPanel panel = new JPanel();
-    public static List<Lecturer> lecturers = new ArrayList<Lecturer>();
+    public static List<Lecturer> lecturers = new ArrayList<>();
     public static List<Lecturer> lecturersCopy;
-    private static JTable lecturersTable;
     private static LecturersModel lecturersModel;
     public static ArrayList<Student> studentsCopy;
-    private static JScrollPane lecturersScrollPane;
     private static JScrollPane studentsScrollPane;
     public static String currentTable = "students";
     private static JButton btnAddPerson;
