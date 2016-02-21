@@ -37,7 +37,6 @@ public class Student extends Person implements Comparable{
         return this.studentNum;
     };
 
-
     public Cource getCource()
     {
         return this.cource;

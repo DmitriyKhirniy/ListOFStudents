@@ -9,12 +9,10 @@ public class Lecturer extends Person implements Comparable {
     private String department;
     private University university;
     private String responsibility;
-    private int id;
 
     public Lecturer( String firstName , String middleName , String lastName, GregorianCalendar birthDate, University university , String position, String faculty, String department, String responsibility )
     {
         super( new Names( firstName , middleName, lastName ), birthDate);
-        this.id = this.hashCode();
         this.university = university;
         this.position = position;
         this.faculty = faculty;
@@ -32,10 +30,6 @@ public class Lecturer extends Person implements Comparable {
         return 0;
     }
 
-    public int getId()
-    {
-        return this.id;
-    };
 
     public String getPosition()
     {

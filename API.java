@@ -83,7 +83,8 @@ public class API extends JFrame {
         setPreferredSize(new Dimension(1356, 370));
     };
 
-    private static ImageIcon createIcon(String path) {
+    private static ImageIcon createIcon(String path)
+    {
         URL imgURL = API.class.getResource(path);
         if (imgURL != null) {
             return new ImageIcon(imgURL);
@@ -206,6 +207,29 @@ public class API extends JFrame {
         university.getFaculty(4).addDepartment( new Department("Маркетинг", university.getFaculty(4).getTitle()) );
     };
 
+    private void copyListsOfStudents()
+    {
+        for (int i = 0; i < studentsCopy.size(); i++) {
+            if (i >= students.size()) {
+                if (!isStudentsContain(studentsCopy.get(i))) students.add(studentsCopy.get(i));
+            } else {
+                if (!isStudentsContain(studentsCopy.get(i))) students.set(i, studentsCopy.get(i));
+            }
+        }
+    };
+
+    private void copyListsOfLecturers()
+    {
+        for (int i = 0; i < lecturersCopy.size(); i++) {
+            if (i >= lecturers.size()) {
+                if (!isLecturersContain(lecturersCopy.get(i))) lecturers.add(lecturersCopy.get(i));
+            } else {
+                if (!isLecturersContain(lecturersCopy.get(i))) lecturers.set(i, lecturersCopy.get(i));
+            }
+        }
+
+    };
+
     private void initSearchComponents()
     {
         JTextField searchField = new JTextField();
@@ -219,13 +243,8 @@ public class API extends JFrame {
 
         btnSearch.addActionListener( event -> {
             if(currentTable.equals("students")) {
-                for (int i = 0; i < studentsCopy.size(); i++) {
-                    if (i >= students.size()) {
-                        if (!isStudentsContain(studentsCopy.get(i))) students.add(studentsCopy.get(i));
-                    } else {
-                        if (!isStudentsContain(studentsCopy.get(i))) students.set(i, studentsCopy.get(i));
-                    }
-                }
+
+                copyListsOfStudents();
 
                 for (int i = 0; i < students.size(); i++) {
                     if (!(students.get(i).getName().toString().contains(searchField.getText()))) {
@@ -235,13 +254,7 @@ public class API extends JFrame {
                 model.fireTableDataChanged();
             }else
             {
-                for (int i = 0; i < lecturersCopy.size(); i++) {
-                    if (i >= lecturers.size()) {
-                        if (!isLecturersContain(lecturersCopy.get(i))) lecturers.add(lecturersCopy.get(i));
-                    } else {
-                        if (!isLecturersContain(lecturersCopy.get(i))) lecturers.set(i, lecturersCopy.get(i));
-                    }
-                }
+                copyListsOfLecturers();
 
                 for (int i = 0; i < lecturers.size(); i++) {
                     if (!(lecturers.get(i).getName().toString().contains(searchField.getText()))) {
@@ -258,30 +271,17 @@ public class API extends JFrame {
 
         btnResetSearch.addActionListener( event -> {
             if(currentTable.equals("students")) {
-                for (int i = 0; i < studentsCopy.size(); i++) {
-                    if (i >= students.size() - 1) {
-                        if (!isStudentsContain(studentsCopy.get(i))) students.add(studentsCopy.get(i));
-                    } else {
-                        if (!isStudentsContain(studentsCopy.get(i))) students.set(i, studentsCopy.get(i));
-                    }
-                }
+                copyListsOfStudents();
                 model.fireTableDataChanged();
                 searchField.setText("");
             }else
             {
-                for (int i = 0; i < lecturersCopy.size(); i++) {
-                    if (i >= lecturers.size()) {
-                        if (!isLecturersContain(lecturersCopy.get(i))) lecturers.add(lecturersCopy.get(i));
-                    } else {
-                        if (!isLecturersContain(lecturersCopy.get(i))) lecturers.set(i, lecturersCopy.get(i));
-                    }
-                }
+                copyListsOfLecturers();
                 lecturersModel.fireTableDataChanged();
                 searchField.setText("");
             }
         } );
     };
-
 
     private void initTableComponents()
     {
@@ -475,7 +475,7 @@ public class API extends JFrame {
         panel.add(add_btn);
         add_btn.addActionListener( event -> {
             error.setText("");
-            if(textName.getText().length() < 1) error.setText("Помилка. Введіт значення назви.");
+            if(textName.getText().length() < 1 || textName.getText().length() > 10 ) error.setText("Помилка. Введіт значення назви.");
             else addNewItem();
         });
 
@@ -541,29 +541,11 @@ public class API extends JFrame {
                         textName.setVisible(true);
                         if(sel.toString().equals("Студенти"))
                         {
-                            for(int i=0;i<studentsCopy.size();i++)
-                            {
-                                if(i >= students.size())
-                                {
-                                    if(!isStudentsContain( studentsCopy.get(i) )) students.add( studentsCopy.get(i) );
-                                }
-                                else{
-                                    if(!isStudentsContain( studentsCopy.get(i) )) students.set(i , studentsCopy.get(i));
-                                }
-                            }
+                            copyListsOfStudents();
                             model.fireTableDataChanged();
                         }else if(sel.toString().equals("Викладачі"))
                         {
-                            for(int i=0;i<lecturersCopy.size();i++)
-                            {
-                                if(i >= lecturers.size())
-                                {
-                                    if(!isLecturersContain( lecturersCopy.get(i) )) lecturers.add( lecturersCopy.get(i) );
-                                }
-                                else{
-                                    if(!isLecturersContain( lecturersCopy.get(i) )) lecturers.set(i , lecturersCopy.get(i));
-                                }
-                            }
+                            copyListsOfLecturers();
                             lecturersModel.fireTableDataChanged();
                         }
                     }
@@ -603,16 +585,7 @@ public class API extends JFrame {
 
     private void sortByDepartment( String department )
     {
-        for(int i=0;i<studentsCopy.size();i++)
-        {
-            if(i >= students.size())
-            {
-                if(!isStudentsContain( studentsCopy.get(i) )) students.add( studentsCopy.get(i) );
-            }
-            else{
-                if(!isStudentsContain( studentsCopy.get(i) )) students.set(i , studentsCopy.get(i));
-            }
-        }
+        copyListsOfStudents();
         for(int i=0;i<students.size();i++)
         {
             if( students.get(i).getDepartment().equals( department ) == false )
@@ -626,16 +599,7 @@ public class API extends JFrame {
 
     private void sortLecturersByDepartment(String department)
     {
-        for(int i=0;i<lecturersCopy.size();i++)
-        {
-            if(i >= lecturers.size())
-            {
-                if(!isLecturersContain( lecturersCopy.get(i) )) lecturers.add( lecturersCopy.get(i) );
-            }
-            else{
-                if(!isLecturersContain( lecturersCopy.get(i) )) lecturers.set(i , lecturersCopy.get(i));
-            }
-        }
+        copyListsOfLecturers();
         for(int i=0;i<lecturers.size();i++)
         {
             if( lecturers.get(i).getDepartment().equals( department ) == false )
@@ -649,16 +613,7 @@ public class API extends JFrame {
 
     public void sortByFaculty(String faculty)
     {
-        for(int i=0;i<studentsCopy.size();i++)
-        {
-            if(i >= students.size())
-            {
-                if(!isStudentsContain( studentsCopy.get(i) )) students.add( studentsCopy.get(i) );
-            }
-            else{
-                if(!isStudentsContain( studentsCopy.get(i) )) students.set(i , studentsCopy.get(i));
-            }
-        }
+        copyListsOfStudents();
         for(int i=0;i<students.size();i++)
         {
             if( students.get(i).getFaculty().equals( faculty ) == false )
@@ -672,16 +627,7 @@ public class API extends JFrame {
 
     private void sortLecturersByFaculty( String faculty )
     {
-        for(int i=0;i<lecturersCopy.size();i++)
-        {
-            if(i >= lecturers.size())
-            {
-                if(!isLecturersContain( lecturersCopy.get(i) )) lecturers.add( lecturersCopy.get(i) );
-            }
-            else{
-                if(!isLecturersContain( lecturersCopy.get(i) )) lecturers.set(i , lecturersCopy.get(i));
-            }
-        }
+        copyListsOfLecturers();
         for(int i=0;i<lecturers.size();i++)
         {
             if( lecturers.get(i).getFaculty().equals( faculty ) == false )
@@ -730,18 +676,18 @@ public class API extends JFrame {
 
     private void setTableColumnSizeForStudents()
     {
-        table.getColumn("ID").setMinWidth(102);
-        table.getColumn("ID").setMaxWidth(102);
-        table.getColumn("Прзвище, ім'я ,по батькові").setMinWidth(365);
-        table.getColumn("Прзвище, ім'я ,по батькові").setMaxWidth(365);
-        table.getColumn("Факультет").setMinWidth(70);
-        table.getColumn("Факультет").setMaxWidth(70);
-        table.getColumn("Напрямок").setMinWidth(194);
-        table.getColumn("Напрямок").setMaxWidth(194);
-        table.getColumn("Вік").setMinWidth(40);
-        table.getColumn("Вік").setMaxWidth(40);
-        table.getColumn("Номер студенського").setMinWidth(130);
-        table.getColumn("Номер студенського").setMaxWidth(130);
+        table.getColumnModel().getColumn(0).setMinWidth(102);
+        table.getColumnModel().getColumn(0).setMaxWidth(102);
+        table.getColumnModel().getColumn(1).setMinWidth(365);
+        table.getColumnModel().getColumn(1).setMaxWidth(365);
+        table.getColumnModel().getColumn(2).setMinWidth(70);
+        table.getColumnModel().getColumn(2).setMaxWidth(70);
+        table.getColumnModel().getColumn(3).setMinWidth(194);
+        table.getColumnModel().getColumn(3).setMaxWidth(194);
+        table.getColumnModel().getColumn(4).setMinWidth(40);
+        table.getColumnModel().getColumn(4).setMaxWidth(40);
+        table.getColumnModel().getColumn(5).setMinWidth(130);
+        table.getColumnModel().getColumn(5).setMaxWidth(130);
         table.getColumn("Рейтинговій бал").setMinWidth(50);
         table.getColumn("Рейтинговій бал").setMaxWidth(50);
         table.getColumn("Курс").setMinWidth(30);
@@ -883,13 +829,53 @@ public class API extends JFrame {
                 if(sel.getChildCount()==0) {
                     model.removeNodeFromParent(sel);
                 }
-                else
-                    // Если есть "детишки" выведем сообщение
-                    JOptionPane.showMessageDialog(null, "Remove all subnodes");
-                    model.removeNodeFromParent(sel);
+                else JOptionPane.showMessageDialog(null, "Remove all subnodes");
+
+                deleteStudentsAdnLecturers(sel.getLevel() , sel.toString());
+                model.removeNodeFromParent(sel);
             }
         }
     }
+
+    private void deleteStudentsAdnLecturers(int level , String what)
+    {
+        System.out.println(level+" || "+what);
+
+        if( level == 1 )
+        {
+            for(int i=0;i<students.size();i++)
+                if( students.get(i).getFaculty().equals( what ) ) students.remove(i--);
+
+            for(int i=0;i<studentsCopy.size();i++)
+                if( studentsCopy.get(i).getFaculty().equals( what ) ) studentsCopy.remove(i--);
+
+            for(int i=0;i<lecturers.size();i++)
+                if( lecturers.get(i).getFaculty().equals( what ) ) lecturers.remove(i--);
+
+            for(int i=0;i<lecturersCopy.size();i++)
+                if( lecturersCopy.get(i).getFaculty().equals( what ) ) lecturersCopy.remove(i--);
+
+            model.fireTableDataChanged();
+            lecturersModel.fireTableDataChanged();
+        }
+        else if(level == 2)
+        {
+            for(int i=0;i<students.size();i++)
+                if( students.get(i).getDepartment().equals( what ) ) students.remove(i--);
+            for(int i=0;i<studentsCopy.size();i++)
+                if( studentsCopy.get(i).getDepartment().equals( what ) ) studentsCopy.remove(i--);
+
+            for(int i=0;i<lecturers.size();i++)
+                if( lecturers.get(i).getDepartment().equals( what ) ) lecturers.remove(i--);
+
+            for(int i=0;i<lecturersCopy.size();i++)
+                if( lecturersCopy.get(i).getDepartment().equals( what ) ) lecturersCopy.remove(i--);
+
+            model.fireTableDataChanged();
+            lecturersModel.fireTableDataChanged();
+        };
+
+    };
 
     public static void main( String[] args )
     {

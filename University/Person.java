@@ -13,11 +13,19 @@ public class Person {
 
     private int age;
 
+    private int personId;
+
     public Person(Names name, GregorianCalendar birthDate)
     {
         this.setNames( name );
         this.birthDate= birthDate;
         this.age = calculateAge( birthDate.getTime() );
+        personId = this.hashCode();
+    };
+
+    public int getPersonId()
+    {
+        return this.personId;
     };
 
     public GregorianCalendar getDate()

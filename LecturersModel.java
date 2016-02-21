@@ -63,7 +63,7 @@ public class LecturersModel extends AbstractTableModel {
     public Object getValueAt(int r, int c) {
         switch (c) {
             case 0:
-                 return lecturers.get(r).getId();
+                 return lecturers.get(r).getPersonId();
             case 1:
                  return lecturers.get(r).getName();
             case 2:

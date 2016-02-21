@@ -65,7 +65,7 @@ public class TableModel extends AbstractTableModel {
     public Object getValueAt(int r, int c) {
         switch (c) {
             case 0:
-                return students.get(r).hashCode();
+                return students.get(r).getPersonId();
             case 1:
                 return students.get(r).getName();
             case 2:
@@ -144,7 +144,8 @@ public class TableModel extends AbstractTableModel {
             error.setText(exc.getMessage() );
         }
         fireTableCellUpdated(rowIndex, columnIndex);
-        API.studentsCopy.set(rowIndex, API.students.get(rowIndex) );
+        if(API.studentsCopy.size() == rowIndex) API.studentsCopy.add( API.students.get(rowIndex) );
+        else API.studentsCopy.set(rowIndex, API.students.get(rowIndex) );
     }
 
     private static String checkName( String string)
